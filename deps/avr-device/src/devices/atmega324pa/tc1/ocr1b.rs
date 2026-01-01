@@ -1,0 +1,80 @@
+#[doc = "Register `OCR1B` reader"]
+pub struct R(crate::R<OCR1B_SPEC>);
+impl core::ops::Deref for R {
+    type Target = crate::R<OCR1B_SPEC>;
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl From<crate::R<OCR1B_SPEC>> for R {
+    #[inline(always)]
+    fn from(reader: crate::R<OCR1B_SPEC>) -> Self {
+        R(reader)
+    }
+}
+#[doc = "Register `OCR1B` writer"]
+pub struct W(crate::W<OCR1B_SPEC>);
+impl core::ops::Deref for W {
+    type Target = crate::W<OCR1B_SPEC>;
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl core::ops::DerefMut for W {
+    #[inline(always)]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+impl From<crate::W<OCR1B_SPEC>> for W {
+    #[inline(always)]
+    fn from(writer: crate::W<OCR1B_SPEC>) -> Self {
+        W(writer)
+    }
+}
+#[doc = "Field `OCR1B` reader - Timer/Counter1 Output Compare B bits"]
+pub type OCR1B_R = crate::FieldReader<u8, u8>;
+#[doc = "Field `OCR1B` writer - Timer/Counter1 Output Compare B bits"]
+pub type OCR1B_W<'a, const O: u8> = crate::FieldWriterSafe<'a, u16, OCR1B_SPEC, u8, u8, 8, O>;
+impl R {
+    #[doc = "Bits 0:7 - Timer/Counter1 Output Compare B bits"]
+    #[inline(always)]
+    pub fn ocr1b(&self) -> OCR1B_R {
+        OCR1B_R::new((self.bits & 0xff) as u8)
+    }
+}
+impl W {
+    #[doc = "Bits 0:7 - Timer/Counter1 Output Compare B bits"]
+    #[inline(always)]
+    #[must_use]
+    pub fn ocr1b(&mut self) -> OCR1B_W<0> {
+        OCR1B_W::new(self)
+    }
+    #[doc = "Writes raw bits to the register."]
+    #[inline(always)]
+    pub unsafe fn bits(&mut self, bits: u16) -> &mut Self {
+        self.0.bits(bits);
+        self
+    }
+}
+#[doc = "Timer/Counter1 Output Compare Register B Bytes\n\nThis register you can [`read`](crate::generic::Reg::read), [`write_with_zero`](crate::generic::Reg::write_with_zero), [`reset`](crate::generic::Reg::reset), [`write`](crate::generic::Reg::write), [`modify`](crate::generic::Reg::modify). See [API](https://docs.rs/svd2rust/#read--modify--write-api).\n\nFor information about available fields see [ocr1b](index.html) module"]
+pub struct OCR1B_SPEC;
+impl crate::RegisterSpec for OCR1B_SPEC {
+    type Ux = u16;
+}
+#[doc = "`read()` method returns [ocr1b::R](R) reader structure"]
+impl crate::Readable for OCR1B_SPEC {
+    type Reader = R;
+}
+#[doc = "`write(|w| ..)` method takes [ocr1b::W](W) writer structure"]
+impl crate::Writable for OCR1B_SPEC {
+    type Writer = W;
+    const ZERO_TO_MODIFY_FIELDS_BITMAP: Self::Ux = 0;
+    const ONE_TO_MODIFY_FIELDS_BITMAP: Self::Ux = 0;
+}
+#[doc = "`reset()` method sets OCR1B to value 0"]
+impl crate::Resettable for OCR1B_SPEC {
+    const RESET_VALUE: Self::Ux = 0;
+}

@@ -1,0 +1,15 @@
+[package]
+name = "hd44780-driver"
+version = "0.4.0"
+edition = "2018"
+keywords = ["no-std", "lcd", "embedded-hal-driver", "embedded-hal", "hd44780"]
+categories = ["embedded", "hardware-support", "no-std"]
+description = "A crate to use HD44780 compliant displays with embedded-hal"
+authors = ["John Doneth <doneth7@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/JohnDoneth/hd44780-driver"
+documentation = "https://docs.rs/hd44780-driver"
+readme = "README.md"
+
+[dependencies]
+embedded-hal = "0.2.3"
