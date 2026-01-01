@@ -1,6 +1,6 @@
 # kariRS   
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-0.1.0-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-orange)
 
 kariRS is a Rust-based embedded framework that provides an Arduino-style setup() and loop() programming model for microcontrollers.
 
