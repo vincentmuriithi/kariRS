@@ -1,9 +1,10 @@
 # kariRS   
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![Version](https://img.shields.io/badge/version-0.1.0-orange)
 
 kariRS is a Rust-based embedded framework that provides an Arduino-style setup() and loop() programming model for microcontrollers.
 
-It allows developers to write firmware in Rust using familiar Arduino concepts—such as **pin configuration, serial communication, and repeated execution—while benefiting from Rust’s memory safety, strong typing, and modern tooling**.
+It allows developers to write firmware in Rust using familiar Arduino concepts such as **pin configuration, serial communication, and repeated execution while benefiting from Rust’s memory safety, strong typing, and modern tooling**.
 
 kariRS maintains the simplicity of Arduino while enforcing clearer structure and safer execution under the hood.
 
@@ -469,7 +470,7 @@ Creates variables sda and scl bound to pins 20 and 21.
 Schedules a closure to run repeatedly at a fixed time interval. The framework tracks timing internally,   the user does not need to manage `millis()` manually.
 
 Parameters:  
-- <span style="color: #45ffcd">Closure</span> : the code to run repeatedly `(|| { ... })`
+- Closure: the code to run repeatedly `(|| { ... })`
 - <span style="color: #45ffcd">interval_ms</span> : u32 interval in milliseconds
 - <span style="color: #45ffcd">task_name</span> : identifier for the scheduled task
 
@@ -515,7 +516,7 @@ On each call, the next pin in the array is set HIGH, and the previous pin is set
 Initializes an SPI peripheral with the specified pins. Returns an SPI object wrapped in `kariSPI`.  
 
 Parameters:    
-- <span style="color: #45ffcd">clk, mosi, miso, cs</span> : literal pin numbers
+clk, mosi, miso, cs: literal pin numbers
 
 Example:
 ```rust
@@ -643,7 +644,7 @@ Reads analog pin multiple times for smoothing
 Creates a PIR motion sensor object. Returns a `kariPIR` object.
 
 Parameters:  
-- <span style="color: #45ffcd">pin</span> : literal pin number
+pin: literal pin number
 
 Example:
 ```rust
