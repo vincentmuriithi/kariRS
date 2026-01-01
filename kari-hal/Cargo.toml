@@ -1,0 +1,41 @@
+[package]
+name = "kari-hal"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+uno = ["arduino-hal/arduino-uno", "arduino-hal/critical-section-impl"]
+mega = ["arduino-hal/arduino-mega2560", "arduino-hal/critical-section-impl"]
+nano = ["arduino-hal/arduino-nano", "arduino-hal/critical-section-impl"]
+leonardo  = ["arduino-hal/arduino-leonardo", "arduino-hal/critical-section-impl"]
+
+
+[dependencies]
+kari-macros = {path = "../kari-macros"}
+arduino-hal = {path = "../deps/arduino-hal", optional = true}
+panic-halt = {path ="../deps/panic-halt"}
+embedded-hal = {path ="../deps/embedded-hal"}
+postcard = {path ="../deps/postcard"}
+serde = {path ="../deps/serde", default-features = false, features =["derive"]}
+libm = {path ="../deps/libm"}
+heapless = {path ="../deps/heapless"} # version 0.9 // avoid a versin below that as it lead to error
+hd44780-driver = {path ="../deps/hd44780-driver"}
+avr-device-macros = {path = "../deps/avr-device-macros" }
+# avr-device = {path = "../deps/avr-device"}
+bare-metal = {path = "../deps/bare-metal"}
+critical-section = {path = "../deps/critical-section"}
+[dependencies.cfg-if]
+version = "1.0.0"
+
+
+[profile.dev]
+panic = "abort"
+lto = true
+opt-level = "s"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+debug = true
+lto = true
+opt-level = "s"
