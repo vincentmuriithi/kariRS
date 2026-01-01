@@ -1,0 +1,25 @@
+{
+    "arch": "avr",
+    "cpu": "atmega328p",
+    "llvm-target": "avr-atmega328p",
+    "data-layout": "e-P1-p:16:8-i8:8-i16:8-i32:8-i64:8-f32:8-f64:8-n8-a:8",
+    "target-endian": "little",
+    "target-pointer-width": "16",
+    "os": "none",
+    "vendor": "unknown",
+    "env": "eabi",
+    "target-family": ["avr"],
+    "panic-strategy": "abort",
+    "disable-redzone": true,
+    "executables": true,
+    "linker-flavor": "gcc",
+    "linker": "avr-gcc",
+    "relocation-model": "static",
+    "max-atomic-width": 0,
+    "pre-link-args": {
+    "gcc": ["-mmcu=atmega328p"]
+  },
+  "post-link-args": {
+    "gcc": ["-Wl,--gc-sections", "-Wl,-O1", "-Wl,--strip-debug"]
+  }
+}

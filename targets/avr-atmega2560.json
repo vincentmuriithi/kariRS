@@ -1,0 +1,20 @@
+{
+  "llvm-target": "avr-atmega2560",
+  "target-endian": "little",
+  "target-pointer-width": "16",
+  "data-layout": "e-p:16:16-i8:8:8-i16:16:16-i32:16:16-i64:16:16-f32:16:16-f64:16:16-n8-a:8",
+  "arch": "avr",
+  "os": "none",
+  "vendor": "unknown",
+  "linker-flavor": "gcc",
+  "linker": "avr-gcc",
+  "cpu": "atmega2560",
+  "features": "+atmega2560",
+  "max-atomic-width": 8,
+  "executables": true,
+  "relocation-model": "static",
+  "panic-strategy": "abort",
+  "disable-redzone": true,
+  "llvm-abiname": "avr",
+  "no-compiler-rt": true
+}
