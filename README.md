@@ -7,7 +7,7 @@ kariRS is a Rust-based embedded framework that provides a setup-and-loop program
 
 It allows developers to write firmware in Rust using familiar concepts such as **pin configuration, serial communication, and repeated execution while benefiting from Rust’s memory safety, strong typing, and modern tooling**.
 
-kariRS maintains the simplicity while enforcing clearer structure and safer execution under the hood.
+kariRS maintains simplicity while enforcing clearer structure and safer execution under the hood.
 
 Internally, kariRS owns the main execution loop and invokes user-defined loop logic, allowing the framework to maintain control over timing, scheduling, and hardware safety.
 
