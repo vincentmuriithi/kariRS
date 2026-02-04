@@ -1,14 +1,16 @@
 # kariRS   
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![Version](https://img.shields.io/badge/version-1.0.0-orange)
+[![Docker Pulls](https://img.shields.io/docker/pulls/vincentmuriithi/karirs.svg)](https://hub.docker.com/r/vincentmuriithi/karirs)
 
-kariRS is a Rust-based embedded framework that provides an Arduino-style setup() and loop() programming model for microcontrollers.
+kariRS is a Rust-based embedded framework that provides a setup-and-loop programming model for microcontrollers, allowing developers to define initialization code and repeated execution logic.  
 
-It allows developers to write firmware in Rust using familiar Arduino concepts such as **pin configuration, serial communication, and repeated execution while benefiting from Rust’s memory safety, strong typing, and modern tooling**.
+It allows developers to write firmware in Rust using familiar concepts such as **pin configuration, serial communication, and repeated execution while benefiting from Rust’s memory safety, strong typing, and modern tooling**.
 
-kariRS maintains the simplicity of Arduino while enforcing clearer structure and safer execution under the hood.
+kariRS maintains the simplicity while enforcing clearer structure and safer execution under the hood.
 
 Internally, kariRS owns the main execution loop and invokes user-defined loop logic, allowing the framework to maintain control over timing, scheduling, and hardware safety.
+
 
 ## 🚧 Project Status
 kariRS is under active development.
@@ -19,6 +21,9 @@ Documentation and examples are published early to establish a clear development 
 ## 📚 Table of Contents
 
 - [🚀 Installation](#-installation)
+  - [💻 Native Installation](#option-a-native-installation-recommended)
+  - [🐳 Docker Installation](#option-b-docker-pre-configured-environment)
+
 - [⚙️ Project Configuration (kari.toml)](#project-configuration-karitoml)
 - [🧩 Supported Boards](#-supported-boards)
 - [kariRS CLI](#karirs-cli)
@@ -50,6 +55,10 @@ Documentation and examples are published early to establish a clear development 
 
 
 ## 🚀 Installation
+kariRS can be installed either natively on your system or used through Docker
+for a fully isolated, pre-configured environment.  
+
+### Option A: Native Installation (Recommended)
 Follow these steps to get started with kariRS:
 ### 1. Download kariRS
 Download the latest release of kariRS from the GitHub releases page
@@ -93,6 +102,77 @@ Open a terminal and run:
 kari doctor
 ```
 This command will check your environment, install any missing dependencies, and ensure kariRS is ready to use.
+
+### Option B: Docker (Pre-configured Environment)
+kariRS is available as official, maintained Docker image with all required toolchains
+preinstalled. This option is ideal for:  
+- trying kariRS without modifying your system  
+- CI / automated builds   
+- reproducible development environments
+
+📦 **Docker Hub**:
+https://hub.docker.com/r/vincentmuriithi/karirs  
+
+Pull the image:  
+```bash
+docker pull vincentmuriithi/karirs:latest
+```
+> `latest` tracks the most recent stable release.  
+> Versioned tags (e.g. `1.0.0`) are immutable and recommended for CI.
+
+Run an interactive container:   
+```bash
+docker run -it --rm vincentmuriithi/karirs
+```
+
+Alternatively:
+```bash
+docker run -dit --name kariRS vincentmuriithi/karirs:1.0.0 bash
+```
+
+Enter the container:   
+```bash
+docker exec -it kariRS bash
+```
+
+Inside the container, you can use the kariRS CLI normally:   
+```bash
+kari doctor
+kari new blink
+kari build
+```
+
+#### Working with projects using volumes (recommended) 
+Mount a host directory so your projects persist outside the container.  
+
+##### Linux / WSL example
+```bash
+docker run -dit \
+  --name kariRS \
+  -v "$(pwd):/workspace" \
+  vincentmuriithi/karirs:latest bash
+```
+Navigate inside the container: 
+```bash
+cd /workspace
+kari new blink
+cd ./blink
+kari build
+```
+
+⚠️ Note: Flashing to physical hardware from Docker may require additional USB passthrough configuration depending on your host OS.   
+
+#### Accessing hardware devices (Linux / WSL) 
+To flash real hardware, pass the serial device into the container:  
+```bash
+docker run -dit \
+  --name kariRS \
+  --device=/dev/ttyACM0 \
+  -v "$(pwd):/workspace" \
+  vincentmuriithi/karirs:1.0.0 bash
+```
+On Windows + WSL, USB devices may require usbipd to attach the device to WSL before Docker can access it.
+
 
 ## Project Configuration (kari.toml)
 kariRS projects are configured using a `kari.toml` file.   
@@ -273,7 +353,7 @@ kari remove ds18b20
 ```
 
 ## Application Structure
-kariRS follows an Arduino-style application structure based on two clearly defined phases:    
+kariRS follows a setup-and-loop application structure based on two clearly defined phases:    
 Initialization (#[init]) — runs once at boot    
 Runtime loop (#[run]) — runs repeatedly
 
@@ -345,7 +425,7 @@ This design allows kariRS to:
 - retain control over timing and execution
 
 ### 4. Design Rationale
-**kariRS** intentionally keeps the Arduino programming model to reduce the learning curve, while improving </br> on Arduino’s limitations:    
+**kariRS** intentionally offers a familiar setup-and-loop execution model (similar to Arduino) to reduce the learning curve, while improving </br> on Arduino’s limitations:    
 - clearer structure    
 - safer execution    
 - framework-controlled lifecycle    
@@ -903,17 +983,17 @@ fn setup(){
 fn run(){
               
     car.drive(120, false); // move in forward direction
-    delay(delay_time)
+    delay(delay_time);
     car.drive(120, false); // move in backward  direction
-    delay(delay_time)
+    delay(delay_time);
     car.right(45, false); // move right in forward direction
-    delay(delay_time)
+    delay(delay_time);
     car.right(45, true);  // move right in backward direction
-    delay(delay_time)
+    delay(delay_time);
     car.left(45, false);  // move left in forward direction
-    delay(delay_time)
+    delay(delay_time);
     car.left(45, true);   // move left in backward  direction
-    delay(delay_time)
+    delay(delay_time);
               
 }
 
