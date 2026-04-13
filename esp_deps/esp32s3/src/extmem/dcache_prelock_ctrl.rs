@@ -1,0 +1,62 @@
+#[doc = "Register `DCACHE_PRELOCK_CTRL` reader"]
+pub type R = crate::R<DCACHE_PRELOCK_CTRL_SPEC>;
+#[doc = "Register `DCACHE_PRELOCK_CTRL` writer"]
+pub type W = crate::W<DCACHE_PRELOCK_CTRL_SPEC>;
+#[doc = "Field `DCACHE_PRELOCK_SCT0_EN` reader - The bit is used to enable the first section of prelock function."]
+pub type DCACHE_PRELOCK_SCT0_EN_R = crate::BitReader;
+#[doc = "Field `DCACHE_PRELOCK_SCT0_EN` writer - The bit is used to enable the first section of prelock function."]
+pub type DCACHE_PRELOCK_SCT0_EN_W<'a, REG> = crate::BitWriter<'a, REG>;
+#[doc = "Field `DCACHE_PRELOCK_SCT1_EN` reader - The bit is used to enable the second section of prelock function."]
+pub type DCACHE_PRELOCK_SCT1_EN_R = crate::BitReader;
+#[doc = "Field `DCACHE_PRELOCK_SCT1_EN` writer - The bit is used to enable the second section of prelock function."]
+pub type DCACHE_PRELOCK_SCT1_EN_W<'a, REG> = crate::BitWriter<'a, REG>;
+impl R {
+    #[doc = "Bit 0 - The bit is used to enable the first section of prelock function."]
+    #[inline(always)]
+    pub fn dcache_prelock_sct0_en(&self) -> DCACHE_PRELOCK_SCT0_EN_R {
+        DCACHE_PRELOCK_SCT0_EN_R::new((self.bits & 1) != 0)
+    }
+    #[doc = "Bit 1 - The bit is used to enable the second section of prelock function."]
+    #[inline(always)]
+    pub fn dcache_prelock_sct1_en(&self) -> DCACHE_PRELOCK_SCT1_EN_R {
+        DCACHE_PRELOCK_SCT1_EN_R::new(((self.bits >> 1) & 1) != 0)
+    }
+}
+#[cfg(feature = "impl-register-debug")]
+impl core::fmt::Debug for R {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("DCACHE_PRELOCK_CTRL")
+            .field("dcache_prelock_sct0_en", &self.dcache_prelock_sct0_en())
+            .field("dcache_prelock_sct1_en", &self.dcache_prelock_sct1_en())
+            .finish()
+    }
+}
+impl W {
+    #[doc = "Bit 0 - The bit is used to enable the first section of prelock function."]
+    #[inline(always)]
+    pub fn dcache_prelock_sct0_en(
+        &mut self,
+    ) -> DCACHE_PRELOCK_SCT0_EN_W<'_, DCACHE_PRELOCK_CTRL_SPEC> {
+        DCACHE_PRELOCK_SCT0_EN_W::new(self, 0)
+    }
+    #[doc = "Bit 1 - The bit is used to enable the second section of prelock function."]
+    #[inline(always)]
+    pub fn dcache_prelock_sct1_en(
+        &mut self,
+    ) -> DCACHE_PRELOCK_SCT1_EN_W<'_, DCACHE_PRELOCK_CTRL_SPEC> {
+        DCACHE_PRELOCK_SCT1_EN_W::new(self, 1)
+    }
+}
+#[doc = "******* Description ***********\n\nYou can [`read`](crate::Reg::read) this register and get [`dcache_prelock_ctrl::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`dcache_prelock_ctrl::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct DCACHE_PRELOCK_CTRL_SPEC;
+impl crate::RegisterSpec for DCACHE_PRELOCK_CTRL_SPEC {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`dcache_prelock_ctrl::R`](R) reader structure"]
+impl crate::Readable for DCACHE_PRELOCK_CTRL_SPEC {}
+#[doc = "`write(|w| ..)` method takes [`dcache_prelock_ctrl::W`](W) writer structure"]
+impl crate::Writable for DCACHE_PRELOCK_CTRL_SPEC {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets DCACHE_PRELOCK_CTRL to value 0"]
+impl crate::Resettable for DCACHE_PRELOCK_CTRL_SPEC {}

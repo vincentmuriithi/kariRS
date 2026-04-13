@@ -1,0 +1,43 @@
+#[doc = "Register `RTC_PMS` reader"]
+pub type R = crate::R<RTC_PMS_SPEC>;
+#[doc = "Register `RTC_PMS` writer"]
+pub type W = crate::W<RTC_PMS_SPEC>;
+#[doc = "Field `DIS_RTC_CPU` reader - Set 1 to disable rtc coprocessor."]
+pub type DIS_RTC_CPU_R = crate::BitReader;
+#[doc = "Field `DIS_RTC_CPU` writer - Set 1 to disable rtc coprocessor."]
+pub type DIS_RTC_CPU_W<'a, REG> = crate::BitWriter<'a, REG>;
+impl R {
+    #[doc = "Bit 0 - Set 1 to disable rtc coprocessor."]
+    #[inline(always)]
+    pub fn dis_rtc_cpu(&self) -> DIS_RTC_CPU_R {
+        DIS_RTC_CPU_R::new((self.bits & 1) != 0)
+    }
+}
+#[cfg(feature = "impl-register-debug")]
+impl core::fmt::Debug for R {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("RTC_PMS")
+            .field("dis_rtc_cpu", &self.dis_rtc_cpu())
+            .finish()
+    }
+}
+impl W {
+    #[doc = "Bit 0 - Set 1 to disable rtc coprocessor."]
+    #[inline(always)]
+    pub fn dis_rtc_cpu(&mut self) -> DIS_RTC_CPU_W<'_, RTC_PMS_SPEC> {
+        DIS_RTC_CPU_W::new(self, 0)
+    }
+}
+#[doc = "RTC coprocessor permission register.\n\nYou can [`read`](crate::Reg::read) this register and get [`rtc_pms::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`rtc_pms::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct RTC_PMS_SPEC;
+impl crate::RegisterSpec for RTC_PMS_SPEC {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`rtc_pms::R`](R) reader structure"]
+impl crate::Readable for RTC_PMS_SPEC {}
+#[doc = "`write(|w| ..)` method takes [`rtc_pms::W`](W) writer structure"]
+impl crate::Writable for RTC_PMS_SPEC {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets RTC_PMS to value 0"]
+impl crate::Resettable for RTC_PMS_SPEC {}

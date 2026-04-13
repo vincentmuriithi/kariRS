@@ -1,0 +1,43 @@
+#[doc = "Register `WDTFEED` reader"]
+pub type R = crate::R<WDTFEED_SPEC>;
+#[doc = "Register `WDTFEED` writer"]
+pub type W = crate::W<WDTFEED_SPEC>;
+#[doc = "Field `WDT_FEED` reader - Need add desc"]
+pub type WDT_FEED_R = crate::BitReader;
+#[doc = "Field `WDT_FEED` writer - Need add desc"]
+pub type WDT_FEED_W<'a, REG> = crate::BitWriter<'a, REG>;
+impl R {
+    #[doc = "Bit 31 - Need add desc"]
+    #[inline(always)]
+    pub fn wdt_feed(&self) -> WDT_FEED_R {
+        WDT_FEED_R::new(((self.bits >> 31) & 1) != 0)
+    }
+}
+#[cfg(feature = "impl-register-debug")]
+impl core::fmt::Debug for R {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("WDTFEED")
+            .field("wdt_feed", &self.wdt_feed())
+            .finish()
+    }
+}
+impl W {
+    #[doc = "Bit 31 - Need add desc"]
+    #[inline(always)]
+    pub fn wdt_feed(&mut self) -> WDT_FEED_W<'_, WDTFEED_SPEC> {
+        WDT_FEED_W::new(self, 31)
+    }
+}
+#[doc = "register description\n\nYou can [`read`](crate::Reg::read) this register and get [`wdtfeed::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`wdtfeed::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct WDTFEED_SPEC;
+impl crate::RegisterSpec for WDTFEED_SPEC {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`wdtfeed::R`](R) reader structure"]
+impl crate::Readable for WDTFEED_SPEC {}
+#[doc = "`write(|w| ..)` method takes [`wdtfeed::W`](W) writer structure"]
+impl crate::Writable for WDTFEED_SPEC {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets WDTFEED to value 0"]
+impl crate::Resettable for WDTFEED_SPEC {}

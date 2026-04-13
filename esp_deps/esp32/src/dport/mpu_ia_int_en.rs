@@ -1,0 +1,43 @@
+#[doc = "Register `MPU_IA_INT_EN` reader"]
+pub type R = crate::R<MPU_IA_INT_EN_SPEC>;
+#[doc = "Register `MPU_IA_INT_EN` writer"]
+pub type W = crate::W<MPU_IA_INT_EN_SPEC>;
+#[doc = "Field `MPU_IA_INT_EN` reader - "]
+pub type MPU_IA_INT_EN_R = crate::FieldReader<u32>;
+#[doc = "Field `MPU_IA_INT_EN` writer - "]
+pub type MPU_IA_INT_EN_W<'a, REG> = crate::FieldWriter<'a, REG, 17, u32>;
+impl R {
+    #[doc = "Bits 0:16"]
+    #[inline(always)]
+    pub fn mpu_ia_int_en(&self) -> MPU_IA_INT_EN_R {
+        MPU_IA_INT_EN_R::new(self.bits & 0x0001_ffff)
+    }
+}
+#[cfg(feature = "impl-register-debug")]
+impl core::fmt::Debug for R {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("MPU_IA_INT_EN")
+            .field("mpu_ia_int_en", &self.mpu_ia_int_en())
+            .finish()
+    }
+}
+impl W {
+    #[doc = "Bits 0:16"]
+    #[inline(always)]
+    pub fn mpu_ia_int_en(&mut self) -> MPU_IA_INT_EN_W<'_, MPU_IA_INT_EN_SPEC> {
+        MPU_IA_INT_EN_W::new(self, 0)
+    }
+}
+#[doc = "\n\nYou can [`read`](crate::Reg::read) this register and get [`mpu_ia_int_en::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`mpu_ia_int_en::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct MPU_IA_INT_EN_SPEC;
+impl crate::RegisterSpec for MPU_IA_INT_EN_SPEC {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`mpu_ia_int_en::R`](R) reader structure"]
+impl crate::Readable for MPU_IA_INT_EN_SPEC {}
+#[doc = "`write(|w| ..)` method takes [`mpu_ia_int_en::W`](W) writer structure"]
+impl crate::Writable for MPU_IA_INT_EN_SPEC {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets MPU_IA_INT_EN to value 0"]
+impl crate::Resettable for MPU_IA_INT_EN_SPEC {}

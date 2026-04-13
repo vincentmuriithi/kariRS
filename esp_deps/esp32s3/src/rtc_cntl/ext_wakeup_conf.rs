@@ -1,0 +1,73 @@
+#[doc = "Register `EXT_WAKEUP_CONF` reader"]
+pub type R = crate::R<EXT_WAKEUP_CONF_SPEC>;
+#[doc = "Register `EXT_WAKEUP_CONF` writer"]
+pub type W = crate::W<EXT_WAKEUP_CONF_SPEC>;
+#[doc = "Field `GPIO_WAKEUP_FILTER` reader - enable filter for gpio wakeup event"]
+pub type GPIO_WAKEUP_FILTER_R = crate::BitReader;
+#[doc = "Field `GPIO_WAKEUP_FILTER` writer - enable filter for gpio wakeup event"]
+pub type GPIO_WAKEUP_FILTER_W<'a, REG> = crate::BitWriter<'a, REG>;
+#[doc = "Field `EXT_WAKEUP0_LV` reader - 0: external wakeup at low level, 1: external wakeup at high level"]
+pub type EXT_WAKEUP0_LV_R = crate::BitReader;
+#[doc = "Field `EXT_WAKEUP0_LV` writer - 0: external wakeup at low level, 1: external wakeup at high level"]
+pub type EXT_WAKEUP0_LV_W<'a, REG> = crate::BitWriter<'a, REG>;
+#[doc = "Field `EXT_WAKEUP1_LV` reader - 0: external wakeup at low level, 1: external wakeup at high level"]
+pub type EXT_WAKEUP1_LV_R = crate::BitReader;
+#[doc = "Field `EXT_WAKEUP1_LV` writer - 0: external wakeup at low level, 1: external wakeup at high level"]
+pub type EXT_WAKEUP1_LV_W<'a, REG> = crate::BitWriter<'a, REG>;
+impl R {
+    #[doc = "Bit 29 - enable filter for gpio wakeup event"]
+    #[inline(always)]
+    pub fn gpio_wakeup_filter(&self) -> GPIO_WAKEUP_FILTER_R {
+        GPIO_WAKEUP_FILTER_R::new(((self.bits >> 29) & 1) != 0)
+    }
+    #[doc = "Bit 30 - 0: external wakeup at low level, 1: external wakeup at high level"]
+    #[inline(always)]
+    pub fn ext_wakeup0_lv(&self) -> EXT_WAKEUP0_LV_R {
+        EXT_WAKEUP0_LV_R::new(((self.bits >> 30) & 1) != 0)
+    }
+    #[doc = "Bit 31 - 0: external wakeup at low level, 1: external wakeup at high level"]
+    #[inline(always)]
+    pub fn ext_wakeup1_lv(&self) -> EXT_WAKEUP1_LV_R {
+        EXT_WAKEUP1_LV_R::new(((self.bits >> 31) & 1) != 0)
+    }
+}
+#[cfg(feature = "impl-register-debug")]
+impl core::fmt::Debug for R {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        f.debug_struct("EXT_WAKEUP_CONF")
+            .field("gpio_wakeup_filter", &self.gpio_wakeup_filter())
+            .field("ext_wakeup0_lv", &self.ext_wakeup0_lv())
+            .field("ext_wakeup1_lv", &self.ext_wakeup1_lv())
+            .finish()
+    }
+}
+impl W {
+    #[doc = "Bit 29 - enable filter for gpio wakeup event"]
+    #[inline(always)]
+    pub fn gpio_wakeup_filter(&mut self) -> GPIO_WAKEUP_FILTER_W<'_, EXT_WAKEUP_CONF_SPEC> {
+        GPIO_WAKEUP_FILTER_W::new(self, 29)
+    }
+    #[doc = "Bit 30 - 0: external wakeup at low level, 1: external wakeup at high level"]
+    #[inline(always)]
+    pub fn ext_wakeup0_lv(&mut self) -> EXT_WAKEUP0_LV_W<'_, EXT_WAKEUP_CONF_SPEC> {
+        EXT_WAKEUP0_LV_W::new(self, 30)
+    }
+    #[doc = "Bit 31 - 0: external wakeup at low level, 1: external wakeup at high level"]
+    #[inline(always)]
+    pub fn ext_wakeup1_lv(&mut self) -> EXT_WAKEUP1_LV_W<'_, EXT_WAKEUP_CONF_SPEC> {
+        EXT_WAKEUP1_LV_W::new(self, 31)
+    }
+}
+#[doc = "ext wakeup configure\n\nYou can [`read`](crate::Reg::read) this register and get [`ext_wakeup_conf::R`](R). You can [`reset`](crate::Reg::reset), [`write`](crate::Reg::write), [`write_with_zero`](crate::Reg::write_with_zero) this register using [`ext_wakeup_conf::W`](W). You can also [`modify`](crate::Reg::modify) this register. See [API](https://docs.rs/svd2rust/#read--modify--write-api)."]
+pub struct EXT_WAKEUP_CONF_SPEC;
+impl crate::RegisterSpec for EXT_WAKEUP_CONF_SPEC {
+    type Ux = u32;
+}
+#[doc = "`read()` method returns [`ext_wakeup_conf::R`](R) reader structure"]
+impl crate::Readable for EXT_WAKEUP_CONF_SPEC {}
+#[doc = "`write(|w| ..)` method takes [`ext_wakeup_conf::W`](W) writer structure"]
+impl crate::Writable for EXT_WAKEUP_CONF_SPEC {
+    type Safety = crate::Unsafe;
+}
+#[doc = "`reset()` method sets EXT_WAKEUP_CONF to value 0"]
+impl crate::Resettable for EXT_WAKEUP_CONF_SPEC {}
