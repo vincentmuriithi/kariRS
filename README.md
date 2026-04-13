@@ -227,6 +227,11 @@ kariRS currently targets **AVR microcontrollers** and supports the following Ard
 | Arduino Mega 2560 | ATmega2560 | ✅ Stable |
 | Arduino Pro Mini | ATmega328P | ✅ Stable |
 | Arduino Leonardo | ATmega32U4 | ✅ Stable |
+| ESP32 | ESP32 | ✅ Stable |
+| ESP32C3 | ESP32C3 | ✅ Stable |
+| ESP32C6 | ESP32C6 | ✅ Stable |
+| ESP32S2 | ESP32S2 | ✅ Stable |
+| ESP32S3 | ESP32S3 | ✅ Stable |
 
 > ℹ️ Boards sharing the same MCU are supported through a common HAL implementation.
 
