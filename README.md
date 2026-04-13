@@ -1,6 +1,6 @@
 # kariRS   
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-1.0.0-orange)
+![Version](https://img.shields.io/badge/version-1.1.0-orange)
 [![Docker Pulls](https://img.shields.io/docker/pulls/vincentmuriithi/karirs.svg)](https://hub.docker.com/r/vincentmuriithi/karirs)
 
 kariRS is a Rust-based embedded framework that provides a setup-and-loop programming model for microcontrollers, allowing developers to define initialization code and repeated execution logic.  
@@ -542,6 +542,14 @@ let i2c = init_i2c(dp.TWI, sda, scl, None);
 ```
 Creates variables sda and scl bound to pins 20 and 21.    
 **Note**: pins generated are **input pull up** types and used in special cases or when user needs low level control of input pins. 
+As from kariRS 1.1.0 gen_pins now support different types of pin generation which include `open_drain`, `open_drain_high`, `floating_high`, `output` and `output_high`. This modes are only available on AVR MCUs and not in ESP32.
+
+Example:
+```rust
+// generating multiple pins here pin 9 is generated as open_drain and 5 as output
+gen_pins!(mypin: d9 open_drain, led_pin: d5 output);
+```
+**Note**: In ESP32 the pin generated is a a pin peripheral instance which is not declared as input,output nor pwm and be set to any. It form is flexible for varous uses with kariRS APIs.
 
 ## Advanced Macros
 **kariRS** provides a set of advanced macros for scheduling, sequencing, and hardware convenience. These are optional but powerful tools for more complex applications.
@@ -853,6 +861,121 @@ let pir = kariPIR!(12);
 | transfer | `transfer(read, write)` | Performs full-duplex SPI transfer. |
 | write | `write(buffer)` | Writes SPI data. |
 | read | `read(buffer)` | Reads SPI data. |
+
+---
+
+### `kariServo`
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| new | `kariServo::new(pin)` | Creates a Servo instance(AVR MCUs). |
+| new | `kariServo::new(&mut _kari_ledc, servo_pin, &_kari_hstimer1, None)` | Creates a Servo instance in esp32. |
+| transfer | `set_angle(read, write)` | Sets the servo's angle. |
+
+**Note:**: Only available from kariRS 1.1.0.
+
+### `kariDS323x` (RTC – Real Time Clock)
+The kariDS323x API provides support for DS323x Real-Time Clock (RTC) modules, enabling accurate timekeeping, alarms, and scheduling in embedded applications.  
+Only available from kariRS 1.1.0.
+
+Supported RTC chips:
+- DS3231 (I2C)
+- DS3232 (I2C)
+- DS3234 (SPI)
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| new | `kariDS323xI2C::new(i2c)` | Creates a kariDS323x for I2C. |
+| new | `kariDS323xSPI::new(spi)` | Creates a kariDS323x for SPI. |
+| enable |	`enable()` |	Starts the RTC oscillator (timekeeping begins). |             
+| disable |	`disable()` |	Stops the RTC oscillator (timekeeping halts). |
+| get_time |	`get_time() -> NaiveDateTime` |	Returns the current date and time from the RTC. |
+| set_time |	`set_time(time: timeData) -> Option<()>` |	Sets the RTC date and time. Returns Some(()) on success. |
+| set_alarm1_hms |	`set_alarm1_hms(hour, minute, second)` |	Sets Alarm 1 using hours, minutes, and seconds. |
+| set_alarm2_hm |	`set_alarm2_hm(hour, minute)` |	Sets Alarm 2 using hours and minutes. |
+| set_alarm1_weekday |	`set_alarm1_weekday(alarm: AlarmInput)` |	Sets Alarm 1 using weekday and formatted time. |
+| has_alarm1_matched |	`has_alarm1_matched() -> bool` |	Returns true if Alarm 1 triggered (auto-clears flag). |
+| has_alarm2_matched |	`has_alarm2_matched() -> bool` |	Returns true if Alarm 2 triggered (auto-clears flag). |
+| use_int_sqw_output_as_interrupt |	`use_int_sqw_output_as_interrupt()` |	Configures INT/SQW pin as interrupt output. |
+
+---
+
+### `kariDS1307` (RTC – Real Time Clock)
+The kariDS1307 API provides support for the DS1307 Real-Time Clock (RTC) module over I2C.  
+It enables basic timekeeping, square wave output control, and time retrieval.
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| new | `kariDS1307::new(i2c)` | Creates a kariDS1307 instance using I2C. |
+| enable_square_wave_output | `enable_square_wave_output()` | Enables the square wave output signal on the RTC. |
+| disable_square_wave_output | `disable_square_wave_output()` | Disables the square wave output signal. |
+| get_time | `get_time() -> NaiveDateTime` | Returns the current date and time from the RTC. |
+| get_hours | `get_hours() -> u8` | Returns the current hour value. |
+| get_minutes | `get_minutes() -> u8` | Returns the current minute value. |
+| get_seconds | `get_seconds() -> u8` | Returns the current second value. |
+| set_time | `set_time(time: timeData) -> Option<()>` | Sets the RTC date and time. Returns `Some(())` on success. |
+
+---
+
+### `timeData`
+
+Represents a structured date and time used across RTC APIs such as `kariDS323x` and `kariDS1307`.
+
+| Field | Type | Description |
+|------|------|-------------|
+| year | `u16` | Year value (e.g., 2026) |
+| month | `u8` | Month (1–12) |
+| day | `u8` | Day of month (1–31) |
+| hour | `u8` | Hour value (0–23 for 24-hour format) |
+| minute | `u8` | Minute value (0–59) |
+| second | `u8` | Second value (0–59) |
+
+**Example:**
+```rust
+let time = timeData {
+    year: 2026,
+    month: 2,
+    day: 27,
+    hour: 12,
+    minute: 34,
+    second: 56
+};
+```
+---
+
+### `kariDHT` (Temperature & Humidity Sensors)
+The kariDHT API provides support for DHT family sensors, enabling temperature and humidity measurements in embedded applications.  
+Only available from kariRS 1.1.0.
+
+Supported sensors:
+- DHT11 (Digital pin)
+- DHT22 (Digital pin)
+- DHT20 (I2C)
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| new (DHT11) | `kariDHT11::new(pin, delay)` | Creates a DHT11 sensor instance. |
+| read (DHT11) | `read() -> Result<kariDhtMeasurements<u8>, SensorError>` | Reads temperature and humidity values (integer precision). |
+| new (DHT22) | `kariDHT22::new(pin, delay)` | Creates a DHT22 sensor instance. |
+| read (DHT22) | `read() -> Result<kariDhtMeasurements<f32>, SensorError>` | Reads temperature and humidity values (floating-point precision). |
+| new (DHT20) | `kariDHT20::new(i2c, delay)` | Creates a DHT20 sensor instance using I2C. |
+| read (DHT20) | `read() -> Result<kariDhtMeasurements<f32>, SensorError>` | Reads temperature and humidity values (floating-point precision). |
+
+#### `kariDhtMeasurements`
+
+Represents a sensor reading containing temperature and humidity.
+
+| Field | Type | Description |
+|------|------|-------------|
+| temperature | `T` | Measured temperature value |
+| humidity | `T` | Measured humidity value |
+
+---
+
+**Notes:**
+- DHT11 returns integer values (`u8`) → lower precision.
+- DHT22 and DHT20 return floating-point values (`f32`) → higher precision.
+- All sensors return a `Result`, allowing error handling via `SensorError`.
+- DHT11 and DHT22 use digital pins, while DHT20 uses I2C communication.
 
 
 ## 🔨 Usage
@@ -1460,6 +1583,196 @@ fn run(){
 
 }
 ```
+
+### 16. Basic Example: Rotating a Servo Motor using `kariServo` API in AVR (In kariRS 1.1.0 and above)
+```rust
+#![no_std]
+#![no_main]
+
+mod kari_entry;
+use kari_entry::*;
+
+
+
+#[init]
+fn setup(){
+     pinMode!(9, PWM);
+
+     // Creating a servo instance
+    let mut servo = kariServo::new(9);
+
+
+#[run]
+fn run(){
+
+    // Rotating the servo motor from 0 to 180 deg back and from
+     for deg in (0..=180).chain((0..=179).rev()){ 
+          servo.set_angle(deg);
+          delay(10);  
+     }
+
+
+
+}
+
+}
+```
+
+### 17. Basic Example: Rotating a Servo Motor using `kariServo` API in ESP32 (In kariRS 1.1.0 and above)
+```rust
+#![no_std]
+#![no_main]
+
+mod kari_entry;
+use kari_entry::*;
+
+
+
+#[init]
+fn setup(){
+     // Generating pin for use with servo
+    gen_pins!(servo_pin: d13);
+
+     // Creating a servo instance
+    let mut servo = kariServo::new(&mut _kari_ledc, servo_pin, &_kari_hstimer1, None);
+
+    // Creating another servo instance on a different pin and channel
+    //gen_pins!(servo_pin1: d33);    
+    //let mut servo2 = Servo::new(&mut _kari_ledc, servo_pin1, &_kari_hstimer1, Some(channelNumber::Channel1));
+
+
+#[run]
+fn run(){
+
+
+     for deg in (0..=180).chain((0..=179).rev()){ 
+          servo.set_angle(deg);
+          delay(10);  
+     }
+
+
+
+}
+
+}
+```
+
+### 18. Basic Example: A Basic DIY Solar Tracker using `kariServo` API (In kariRS 1.1.0 and above)
+```rust
+#![no_std]
+#![no_main]
+
+mod kari_entry;
+use kari_entry::*;
+
+
+#[init]
+fn setup(){
+    // yellow_led = 7, green_led = 6
+    kariBegin!([6, 7], OUTPUT); 
+    kariBegin!([0, 1], _INPUT);
+    pinMode!(9, PWM);
+
+    let mut servo = kariServo::new(9);
+
+    let mut left_ldr: u16 = 0;
+    let mut right_ldr: u16 = 0;
+    let mut dir: i8 = 1;
+    let mut angle: u8 = 0;
+#[run]
+fn run(){
+
+    kariAsync!(||{
+        left_ldr = analogRead!(0);
+        right_ldr = analogRead!(1);
+
+        if right_ldr.abs_diff( left_ldr) >= 100 {
+            digitalWrite!(7, HIGH);
+            digitalWrite!(6, LOW);
+
+            if right_ldr > left_ldr {
+                dir = 1;
+            } else if left_ldr > right_ldr {
+                dir = -1;
+            } else {
+                dir = 0;
+            }
+
+            if dir == 1 && angle < 180 {
+                angle += 1;
+                servo.set_angle(angle);
+            } else if dir == -1 && angle > 0 {
+                angle -= 1;
+                servo.set_angle(angle);
+            }
+
+
+        }  else {
+            digitalWrite!(7, LOW);
+            digitalWrite!(6, HIGH);
+        }
+    }, 10, solar_tracker);
+
+}
+
+}
+```
+
+### 19. Basic Example: Keeping track of time using `kariDS1307` API
+```rust
+#![no_std]
+#![no_main]
+
+mod kari_entry;
+use kari_entry::*;
+
+
+#[init]
+fn setup(){
+    Serial!(9600);
+    gen_pins!(sda: a4, scl: a5);
+
+    // creating the i2c instance
+    let myi2c =  init_i2c(dp.TWI, sda, scl, None);
+
+    // Creating the kariDS1307 rtc instance
+    let mut rtc = kariDS1307::new(myi2c);
+
+    let mut hour = rtc.get_hours();
+
+    let mut minutes = rtc.get_minutes();
+    let mut seconds = rtc.get_seconds();
+
+    kprintln!("Current time: {}:{}:{}", hour,minutes , seconds);
+
+    // setting time run it first time then comment it out to prevent resetting of time each time  you restart your MCU unless you are perhaps updating time systematically from another device eg a phone connected to your MCU wirelessly 
+    rtc.set_time(timeData{
+        year: 2026,
+        month: 3,
+        day: 1,
+        hour: 22,
+        minute: 19,
+        second: 40
+    });
+
+    delay(1500);
+
+#[run]
+fn run(){
+
+    kariAsync!(|| {
+        hour = rtc.get_hours();
+        minutes = rtc.get_minutes();
+        seconds = rtc.get_seconds();
+        kprintln!("Current time: {}:{}:{}", hour,minutes , seconds);
+    }, 1000, time_logger);
+
+}
+
+}
+
+```
+
 
 
 ## 📜 License
