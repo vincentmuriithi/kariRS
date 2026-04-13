@@ -1,0 +1,28 @@
+[package]
+name = "rtcc"
+version = "0.4.0"
+authors = ["Diego Barrios Romero <eldruin@gmail.com>"]
+repository = "https://github.com/eldruin/rtcc-rs"
+license = "MIT OR Apache-2.0"
+description = "Real-time clock / calendar (RTC / RTCC) traits."
+readme = "README.md"
+keywords = ["rtc", "rtcc", "clock", "calendar"]
+categories = ["embedded", "hardware-support", "no-std"]
+homepage = "https://github.com/eldruin/rtcc-rs"
+documentation = "https://docs.rs/rtcc"
+include = [
+    "/**/*.rs",
+    "/Cargo.toml",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE-MIT",
+    "/LICENSE-APACHE",
+]
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4.35", default-features = false }
+defmt = { version = "1.0.1", optional = true }
+
+[features]
+defmt = ["dep:defmt"]

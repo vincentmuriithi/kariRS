@@ -1,0 +1,78 @@
+name: tests
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  RUSTFLAGS: '--deny warnings'
+
+jobs:
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.73.0
+          targets: x86_64-unknown-linux-gnu
+          components: clippy
+
+      - run: cargo clippy --all-targets --all-features
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+          components: rustfmt
+
+      - run: cargo fmt --all -- --check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, 1.73.0]
+        features: ["", "--all-features"]
+        TARGET:
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+          - arm-unknown-linux-gnueabi # Raspberry Pi 1
+          - armv7-unknown-linux-gnueabihf # Raspberry Pi 2, 3, etc
+          # Bare metal
+          - thumbv6m-none-eabi
+          - thumbv7em-none-eabi
+          - thumbv7em-none-eabihf
+          - thumbv7m-none-eabi
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.TARGET }}
+
+      - run: cargo build ${{matrix.features}} --target=${{ matrix.TARGET }}
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable]
+        features: ["", "--all-features"]
+        TARGET: [x86_64-unknown-linux-gnu]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          targets: ${{ matrix.TARGET }}
+
+      - run: cargo test ${{matrix.features}} --target=${{ matrix.TARGET }}
