@@ -218,7 +218,7 @@ kari_spi = "0.1"
 
 ## 🧩 Supported Boards
 
-kariRS currently targets **AVR microcontrollers** and supports the following Arduino-compatible boards:
+kariRS currently supports the following **AVR and ESP32 microcontroller** boards:
 
 | Board | MCU | Status |
 |------|-----|--------|
