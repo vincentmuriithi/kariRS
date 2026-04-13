@@ -7,20 +7,33 @@ use core::any::Any;
 // use arduino_hal::i2c;
 // use arduino_hal::prelude::*;
 // use arduino_hal::prelude::_embedded_hal_blocking_i2c_Write;
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 use arduino_hal::{Eeprom, eeprom::OutOfBoundsError};
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 use arduino_hal::prelude::_embedded_hal_serial_Read as Read;
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 pub use arduino_hal::spi;
 //use arduino_hal::spi::ChipSelectPin;
 //use embedded_hal::spi::Operation::Transfer;
 use embedded_hal::spi::{SpiBus, SpiDevice, };
 
+#[cfg(feature = "esp")]
+pub use esp_hal::uart::{UartRx};
+#[cfg(feature = "esp")]
+pub use esp_hal::Blocking;
+#[cfg(feature = "esp")]
+pub use esp_hal::Async;
+
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 #[allow(non_camel_case_types)]
 pub struct kariEEPROM {
     eeprom: Eeprom
 }
 
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 type BoundError = Result<(), arduino_hal::eeprom::OutOfBoundsError>;
 
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 impl kariEEPROM {
     pub fn new(eeprom: arduino_hal::pac::EEPROM) -> Self {
         let eeprom = arduino_hal::eeprom::Eeprom::new(eeprom);
@@ -77,7 +90,7 @@ impl kariEEPROM {
     }
 }
 
-
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 pub struct SerialListener<'a, R> 
 where 
     R: Read<u8>,
@@ -87,6 +100,7 @@ where
     serial_buffer: [u8; 128]
 }
 
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 impl<'a, R> SerialListener<'a, R> 
 where 
     R: Read<u8>
@@ -121,6 +135,45 @@ where
 
     }
 }
+
+
+
+#[cfg(feature = "esp")]
+pub struct SerialListener<'a> {
+    rx: UartRx<'a, Blocking>,
+    counter: usize,
+    serial_buffer: [u8; 128]
+}
+
+#[cfg(feature = "esp")]
+impl<'a> SerialListener<'a> {
+
+    pub fn new(rx: UartRx<'a, Blocking>) -> Self {
+        let serial_buffer = [0u8; 128];
+        let counter: usize = 0;
+        Self { rx, counter, serial_buffer }
+    }
+    pub fn listen<F>(&mut self, mut handler: F) 
+    where 
+        F : FnMut(&str)
+    {
+        if let Ok(len) = self.rx.read_buffered(&mut self.serial_buffer[self.counter..]) {
+          self.counter +=len;
+            
+            if self.counter > 0 && (self.serial_buffer[self.counter-1] == b'\n' || self.serial_buffer[self.counter-1] == b'\r') {
+                if let Ok(s) = str::from_utf8(&self.serial_buffer[..self.counter]) {
+                        let s = s.trim_end_matches(&['\n', '\r'][..]);
+                        self.counter = 0;
+                        handler(s);
+                } else {
+                        self.counter = 0;
+                }
+            } 
+        }
+    }
+}
+
+
 
 #[allow(non_camel_case_types)]
 pub struct kariSPI<S, C> {

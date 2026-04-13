@@ -3,14 +3,40 @@ use core::fmt::Write;
 use core::time::Duration;
 use hd44780_driver::{CursorBlink, HD44780, entry_mode};
 use hd44780_driver::bus::I2CBus;
-use arduino_hal::i2c;
-use arduino_hal::prelude::*;
-use arduino_hal::prelude::_embedded_hal_blocking_i2c_Write;
+//use embedded_hal::i2c;
 
+#[cfg(feature = "esp")]
+use embedded_hal_compat::{Reverse, ReverseCompat, markers::*};
+#[cfg(feature = "esp")]
+use embedded_hal_compat::eh0_2::blocking::delay::DelayUs;
+#[cfg(feature = "esp")]
+use embedded_hal_compat::eh0_2::blocking::delay::DelayMs;
+#[cfg(feature = "esp")]
+use embedded_hal_compat::eh1_0::delay::DelayNs;
+
+use core::marker::PhantomData;
+
+
+
+
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+use arduino_hal::i2c;
+
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+use arduino_hal::prelude::*;
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+use arduino_hal::prelude::_embedded_hal_blocking_i2c_Write;
 
 
 use crate::kari::{map, millis};
 
+
+#[cfg(feature = "esp")]
+use esp_hal::i2c::master::I2c;
+#[cfg(feature = "esp")]
+use esp_hal::delay::Delay;
+#[cfg(feature = "esp")]
+use esp_hal::{Blocking, DriverMode};
 
 
 #[allow(non_camel_case_types)]
@@ -80,7 +106,37 @@ pub trait kariI2C {
     fn read_register(&mut self, addr: u8, reg: u8) -> Result<u8, ()>;
 }
 
+#[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
 impl kariI2C for i2c::I2c {
+    fn scan(&mut self) -> Vec<u8, 128> {
+        let mut devices = Vec::new();
+        for addr in 0x08..=0x77 {
+            if self.write(addr, &[]).is_ok() {
+                let _ = devices.push(addr);
+            }
+        }
+        devices
+    }
+
+    fn read_register(&mut self, addr: u8, reg: u8) -> Result<u8, ()> {
+        let mut buffer = [0u8, 1];
+
+        if let Err(_) = self.write(addr, &[reg]) {
+            return Err(())
+        }
+        if let Err(_) = self.read(addr, &mut buffer) {
+            return Err(())
+        }
+        Ok(buffer[0])
+    }
+}
+
+
+#[cfg(feature = "esp")]
+impl<'a, DM> kariI2C for I2c<'a, DM> 
+where
+    DM: esp_hal::DriverMode
+{
     fn scan(&mut self) -> Vec<u8, 128> {
         let mut devices = Vec::new();
         for addr in 0x08..=0x77 {
@@ -118,6 +174,7 @@ pub struct kariPID{
 
 }
 
+
 impl kariPID {
     pub fn new(set_point: f32, kp: f32, ki: f32, kd: f32,) -> Self{
         kariPID { 
@@ -145,62 +202,120 @@ impl kariPID {
     }
 }
 
+// #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+// #[allow(non_camel_case_types)]
+// pub struct kariLcd {
+//     lcd: HD44780<I2CBus<i2c::I2c>>,
+//     delay: arduino_hal::Delay,
+// }
+
+#[cfg(feature = "esp")]
+pub struct MyDelay(pub Reverse<Delay>);
+
+#[cfg(feature = "esp")]
+impl DelayMs<u8> for MyDelay {
+    fn delay_ms(&mut self, ms: u8) {
+        self.0.inner_mut().delay_us(ms as u32 * 1000);
+    }
+}
+
+#[cfg(feature = "esp")]
+impl DelayUs<u16> for MyDelay {
+    fn delay_us(&mut self, us: u16) {
+        self.0.inner_mut().delay_us(us as u32);
+    }
+}
+
+
+
 
 #[allow(non_camel_case_types)]
-    pub struct kariLcd {
-        lcd: HD44780<I2CBus<i2c::I2c>>,
-        delay: arduino_hal::Delay
+pub struct kariLcd<'a>{
+    #[cfg(feature = "esp")]
+    lcd: HD44780<I2CBus<Reverse<I2c<'a, Blocking>>>>,
+    #[cfg(feature = "esp")]
+    delay: MyDelay,
+
+    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+    lcd: HD44780<I2CBus<i2c::I2c>>,
+    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+    delay: arduino_hal::Delay,
+
+    _phantom: PhantomData<&'a ()>
+}
+
+// #[cfg(feature = "esp")]
+// impl<'a> kariLcd<'a>{
+//     pub fn new(i2c_instance: I2c<'a, Blocking>, address: Option<u8>) -> Self {
+//         let mut delay = MyDelay(Reverse::new(esp_hal::delay::Delay::new()));
+//         let address = address.unwrap_or(0x27);
+//         let lcd= HD44780::new_i2c(Reverse::new(i2c_instance), address, &mut delay).unwrap();
+//         kariLcd { lcd, delay }
+//     }
+// }
+
+
+
+impl<'a> kariLcd<'a>{
+
+    #[cfg(feature = "esp")]
+    pub fn new(i2c_instance: I2c<'a, Blocking>, address: Option<u8>) -> Self {
+        let mut delay = MyDelay(Reverse::new(esp_hal::delay::Delay::new()));
+        let address = address.unwrap_or(0x27);
+        let lcd= HD44780::new_i2c(Reverse::new(i2c_instance), address, &mut delay).unwrap();
+        kariLcd { lcd, delay, _phantom: PhantomData }
     }
 
-    impl kariLcd {
-        pub fn new(i2c_instance: i2c::I2c, address: Option<u8>) -> Self {
-            let mut delay = arduino_hal::Delay::new();
-            let address = address.unwrap_or(0x27);
-            let lcd = HD44780::new_i2c(i2c_instance, address, &mut delay).unwrap();
-            kariLcd { lcd, delay }
-        }
-
-        pub fn clear(&mut self) -> &mut Self{
-            self.lcd.clear(&mut self.delay).unwrap();
-            self
-        }
-
-        pub fn write(&mut self, text: &str) -> &mut Self{
-            self.lcd.write_str(&text, &mut self.delay).unwrap();
-            self
-        }
-
-        pub fn set_cursor(&mut self, position: u8) -> &mut Self{
-            self.lcd.set_cursor_pos(position, &mut self.delay).unwrap();
-            self
-        }
-
-        pub fn shift_display(&mut self, direction:hd44780_driver::Direction) -> &mut Self{
-            self.lcd.shift_display(direction, &mut self.delay).unwrap();
-            self
-        }
-
-        pub fn set_cursor_visibility(&mut self, visibility:hd44780_driver::Cursor) -> &mut Self{
-            self.lcd.set_cursor_visibility(visibility, &mut self.delay).unwrap();
-            self
-        }
-
-        pub fn set_cursor_blink(&mut self, blink:CursorBlink) -> &mut Self{
-            self.lcd.set_cursor_blink(blink, &mut self.delay).unwrap();
-            self
-        }
-
-        pub fn set_cursor_mode(&mut self, mode: entry_mode::CursorMode) -> &mut Self{
-            self.lcd.set_cursor_mode(mode, &mut self.delay).unwrap();
-            self
-        }
-
-        pub fn write_char(&mut self, data: char) -> &mut Self{
-            self.lcd.write_char(data, &mut self.delay).unwrap();
-            self
-        }
-
+    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+    pub fn new(i2c_instance: i2c::I2c, address: Option<u8>) -> Self {
+        let mut delay = arduino_hal::Delay::new();
+        let address = address.unwrap_or(0x27);
+        let lcd = HD44780::new_i2c(i2c_instance, address, &mut delay).unwrap();
+        kariLcd { lcd, delay, _phantom: PhantomData}
     }
+
+
+    pub fn clear(&mut self) -> &mut Self{
+        self.lcd.clear(&mut self.delay).unwrap();
+        self
+    }
+
+    pub fn write(&mut self, text: &str) -> &mut Self{
+        self.lcd.write_str(&text, &mut self.delay).unwrap();
+        self
+    }
+
+    pub fn set_cursor(&mut self, position: u8) -> &mut Self{
+        self.lcd.set_cursor_pos(position, &mut self.delay).unwrap();
+        self
+    }
+
+    pub fn shift_display(&mut self, direction:hd44780_driver::Direction) -> &mut Self{
+        self.lcd.shift_display(direction, &mut self.delay).unwrap();
+        self
+    }
+
+    pub fn set_cursor_visibility(&mut self, visibility:hd44780_driver::Cursor) -> &mut Self{
+        self.lcd.set_cursor_visibility(visibility, &mut self.delay).unwrap();
+        self
+    }
+
+    pub fn set_cursor_blink(&mut self, blink:CursorBlink) -> &mut Self{
+        self.lcd.set_cursor_blink(blink, &mut self.delay).unwrap();
+        self
+    }
+
+    pub fn set_cursor_mode(&mut self, mode: entry_mode::CursorMode) -> &mut Self{
+        self.lcd.set_cursor_mode(mode, &mut self.delay).unwrap();
+        self
+    }
+
+    pub fn write_char(&mut self, data: char) -> &mut Self{
+        self.lcd.write_char(data, &mut self.delay).unwrap();
+        self
+    }
+
+}
 
 #[allow(non_camel_case_types)]
 pub struct kariJoyStick {

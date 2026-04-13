@@ -4,16 +4,32 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
+esp = ["esp-hal", "embedded-hal-compat"]
 uno = ["arduino-hal/arduino-uno", "arduino-hal/critical-section-impl"]
 mega = ["arduino-hal/arduino-mega2560", "arduino-hal/critical-section-impl"]
 nano = ["arduino-hal/arduino-nano", "arduino-hal/critical-section-impl"]
 leonardo  = ["arduino-hal/arduino-leonardo", "arduino-hal/critical-section-impl"]
 
+# [patch.crates-io]
+# rtcc = { path = "../deps/rtcc" }
+
+# [replace]
+# "rtcc:0.4.0" = { path = "../deps/rtcc" }
+# "rtcc:0.3.2" = { path = "../deps/rtcc" }
+
 
 [dependencies]
 kari-macros = {path = "../kari-macros"}
 arduino-hal = {path = "../deps/arduino-hal", optional = true}
+esp-hal = {path ="../esp_deps/esp-hal", features = ["esp32", "unstable"], optional = true}
+# embassy-embedded-hal = {path ="../esp_deps/embassy-embedded-hal", optional = true}
+# embassy-sync = {path ="../esp_deps/embassy-sync", optional = true}
+embedded-hal-compat = {path ="../deps/embedded-hal-compat", optional = true}
 panic-halt = {path ="../deps/panic-halt"}
+ds323x = {path ="../deps/ds323x"}
+ds1307 = {path ="../deps/ds1307"}
+rtcc = {path ="../deps/rtcc"}
+embedded-dht-rs = {path = "../deps/embedded-dht-rs", features = ["dht11", "dht20", "dht22"]}
 embedded-hal = {path ="../deps/embedded-hal"}
 postcard = {path ="../deps/postcard"}
 serde = {path ="../deps/serde", default-features = false, features =["derive"]}
@@ -26,6 +42,9 @@ bare-metal = {path = "../deps/bare-metal"}
 critical-section = {path = "../deps/critical-section"}
 [dependencies.cfg-if]
 version = "1.0.0"
+
+[patch.crates-io]
+embedded-hal = { path = "../deps/embedded-hal", version = "1.0.0" }
 
 
 [profile.dev]
