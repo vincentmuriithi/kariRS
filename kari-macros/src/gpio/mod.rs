@@ -3,6 +3,7 @@
 pub use proc_macro::{TokenStream};
 pub use quote::quote;
 pub use syn::{Expr, Token, parse_macro_input, punctuated::{self, Punctuated}, token::Token};
+pub use quote::format_ident;
 // pub use crate::structs::*;
 // pub use quote::ToTokens;
 // pub use crate::func::*;
@@ -22,6 +23,7 @@ pub mod digitalRead;
 pub mod digitalWrite;
 pub mod analogWrite;
 pub mod analogRead;
+pub mod initADC;
 
 
 

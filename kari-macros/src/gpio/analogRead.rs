@@ -20,13 +20,31 @@ pub fn expand_analogRead(input: TokenStream) -> TokenStream {
     };
 
     let analog_pin_ident = syn::Ident::new(&format!("{}{}", _Names::_kariAnalogPin, pin_num), proc_macro2::Span::call_site());
-    let expanded = quote! {
-        unsafe {
-            if let Some(analog_pin) = #analog_pin_ident.as_mut() {
-                analog_pin.analog_read(&mut kari_adc)
-            } else {
-                0
+    let expanded = quote! { 
+        {
+            let mut analog_value = 0;
+            #[cfg(feature = "esp")]
+            {
+               let val =  if let Some(analog_pin) = #analog_pin_ident.as_mut() {
+                    match analog_pin {
+                        kariADCType::ADC1(pin) => {analog_value = nb::block!(_adc1.as_mut().unwrap().read_oneshot(pin)).unwrap();},
+                        kariADCType::ADC2(pin) => {analog_value = nb::block!(_adc2.as_mut().unwrap().read_oneshot(pin)).unwrap();},
+                    }
+                } else {
+                    analog_value = 0;
+                };
+
             }
+
+            #[cfg(any(feature= "uno", feature= "nano", feature= "mega", feature= "leonardo"))]
+            unsafe {
+                if let Some(analog_pin) = #analog_pin_ident.as_mut() {
+                    analog_value = analog_pin.analog_read(&mut kari_adc);
+                } else {
+                    analog_value = 0;
+                }
+            }
+            analog_value
         }
     };
 

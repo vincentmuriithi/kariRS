@@ -21,10 +21,23 @@ pub fn expand_serial(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
+        #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
         let mut _kari_serial = arduino_hal::default_serial!(dp, kariPins, #pin_num);
+        #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
         let (mut _kari_rx, mut _kari_serial) = _kari_serial.split(); //_kari_serial is just now the tx not the full object
-       
+       #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
         let mut kari_serial_listener = SerialListener::new(&mut _kari_rx);
+
+        #[cfg(feature = "esp")]
+        let config = UartConfig::default().with_baudrate(#pin_num);
+        #[cfg(feature = "esp")]
+        let mut _kari_serial = Uart::new(_peripherals.UART0, config).unwrap()
+        .with_rx(_peripherals.GPIO3)
+        .with_tx(_peripherals.GPIO1);
+        #[cfg(feature = "esp")]
+        let (mut _kari_rx, mut _kari_serial) = _kari_serial.split();
+        #[cfg(feature = "esp")]
+        let mut kari_serial_listener = SerialListener::new(_kari_rx);
     };
 
     expanded.into()

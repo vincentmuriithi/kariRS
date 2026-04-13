@@ -38,6 +38,64 @@ pub fn init(_attr: TokenStream, item: TokenStream) -> TokenStream {
         pub static __KARI_INIT: fn() -> ! = #user_fn_name;
         #(#fn_attributes)*
         #fn_visibility fn #user_fn_name() -> !{
+
+            #[cfg(any(feature = "esp"))]
+            {
+                let _config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
+                let _peripherals = esp_hal::init(_config);
+                let mut _kari_ledc = Ledc::new(_peripherals.LEDC);
+                _kari_ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
+
+                let mut _kari_hstimer0 = _kari_ledc.timer::<HighSpeed>(timer::Number::Timer0);
+                _kari_hstimer0
+                .configure(timer::config::Config {
+                    duty: timer::config::Duty::Duty5Bit,
+                    clock_source: timer::HSClockSource::APBClk,
+                    frequency: Rate::from_khz(24),
+                })
+                .unwrap();
+
+                let mut _kari_hstimer1 = _kari_ledc.timer::<HighSpeed>(timer::Number::Timer1);
+                _kari_hstimer1.configure(
+                    timer::config::Config {
+                        duty: timer::config::Duty::Duty12Bit,
+                        clock_source: timer::HSClockSource::APBClk,
+                        frequency: Rate::from_hz(50)
+                    }
+                ).unwrap();
+
+                let mut _kari_lstimer0 = _kari_ledc.timer::<LowSpeed>(timer::Number::Timer0);
+                _kari_lstimer0
+                .configure(timer::config::Config {
+                    duty: timer::config::Duty::Duty5Bit,
+                    clock_source: timer::LSClockSource::APBClk,
+                    frequency: Rate::from_khz(24),
+                })
+                .unwrap();
+                
+                
+                let mut ls_timers: OnceCell<Vec<&str, 8>> = OnceCell::new();
+                let mut hs_timers: OnceCell<Vec<&str, 8>> = OnceCell::new();
+
+                let mut _adc1_config = AdcConfig::<ADC1>::new();
+                let mut _adc2_config = AdcConfig::<ADC2>::new();
+                let mut is_any_adc1_pin_init = false;
+                let mut is_any_adc2_pin_init = false;
+                let mut _adc1: Option<Adc<peripherals::ADC1, Blocking>> = None;
+                let mut _adc2: Option<Adc<peripherals::ADC2, Blocking>> = None;
+
+
+
+                #(#fn_statements)*
+
+                '_kari_loop:loop {
+                    run();
+                }
+            }
+            
+
+            #[cfg(any(feature = "mega", feature = "uno", feature = "nano"))]
+            {
             let dp = arduino_hal::Peripherals::take().unwrap();
             let tc0 = dp.TC0;
             let _kariEEPROM = dp.EEPROM;
@@ -70,7 +128,7 @@ pub fn init(_attr: TokenStream, item: TokenStream) -> TokenStream {
             // let mut kari_adc = arduino_hal::Adc::new(dp.ADC, Default::default());
 
             let mut _kari_timer1 = arduino_hal::simple_pwm::Timer1Pwm::new(dp.TC1, Prescaler::Prescale64);
-            #[cfg(any(feature = "uno"))]
+            //#[cfg(any(feature = "uno", feature = "nano"))]
             let mut _kari_timer2 = arduino_hal::simple_pwm::Timer2Pwm::new(dp.TC2, Prescaler::Prescale64);
             #[cfg(any(feature = "mega"))]
             let mut _kari_timer3 = arduino_hal::simple_pwm::Timer3Pwm::new(dp.TC3, Prescaler::Prescale64);
@@ -84,12 +142,14 @@ pub fn init(_attr: TokenStream, item: TokenStream) -> TokenStream {
             let kariPins = arduino_hal::pins!(dp);
             type DynOutputPin = dyn OutputPin<Error = Infallible>;
             let mut _kariPinsTable: [Option<NonNull<DynOutputPin>>; 80] = [None; 80];
+            let _kari_delay = arduino_hal::Delay::new();
 
             #(#fn_statements)*
 
             '_kari_loop:loop {
                     run();
                 }
+            } //avr
         }
     };
 
@@ -170,8 +230,44 @@ pub fn gen_pins(input: TokenStream) -> TokenStream {
     let pin_codes = pins.iter().map(|decl|{
         let name = &decl.name;
         let pin = &decl.pin;
-        quote! {
-            let #name = kariPins.#pin.into_pull_up_input();
+        let pin_str = pin.to_string();
+        let num_str = pin_str.trim_start_matches("d");
+        let pin_ident = format_ident!("GPIO{}", num_str);
+
+        if let Some(mode) = &decl.mode {
+            match mode.to_string().as_str() {
+                "open_drain" => quote! { 
+                    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                    let #name = kariPins.#pin.into_opendrain();
+                },
+                "open_drain_high" => quote! { 
+                    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                    et #name = kariPins.#pin.into_opendrain_high();
+                },
+                "floating_input" => quote! { 
+                    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                    let #name = kariPins.#pin.into_floating_input();
+                },
+                "output" => quote! { 
+                    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                    let #name = kariPins.#pin.into_output();
+                },
+                "output_high" => quote! { 
+                    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                    let #name = kariPins.#pin.into_output_high();
+                },
+                _ => quote! {
+                    #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                    let #name = kariPins.#pin.into_pull_up_input();
+                }
+            }
+        } else {
+            quote! {
+                #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
+                let #name = kariPins.#pin.into_pull_up_input();
+                #[cfg(feature = "esp")]
+                let #name = _peripherals.#pin_ident;
+            }
         }
     });
 
@@ -254,4 +350,10 @@ pub fn eeprom(attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn kariSPI(input: TokenStream) -> TokenStream {
     cores::kariSPI::expand_kariSPI(input)
+}
+
+#[allow(non_snake_case)]
+#[proc_macro]
+pub fn initADC(input: TokenStream) -> TokenStream {
+    gpio::initADC::expand_initADC(input)
 }
