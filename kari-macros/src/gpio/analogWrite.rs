@@ -59,7 +59,7 @@ pub fn expand_analogWrite(input: TokenStream) -> TokenStream {
             }
         }
 
-        #[cfg(feature = "esp")]
+        #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
         unsafe {
             
             match #var_name.as_mut() {

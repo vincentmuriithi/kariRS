@@ -39,23 +39,28 @@ pub fn init(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #(#fn_attributes)*
         #fn_visibility fn #user_fn_name() -> !{
 
-            #[cfg(any(feature = "esp"))]
+            #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
             {
                 let _config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
                 let _peripherals = esp_hal::init(_config);
                 let mut _kari_ledc = Ledc::new(_peripherals.LEDC);
                 _kari_ledc.set_global_slow_clock(LSGlobalClkSource::APBClk);
 
+                #[cfg(any(feature = "esp", feature = "esp32"))]
                 let mut _kari_hstimer0 = _kari_ledc.timer::<HighSpeed>(timer::Number::Timer0);
+                #[cfg(any(feature = "esp", feature = "esp32"))]
                 _kari_hstimer0
                 .configure(timer::config::Config {
+                    
                     duty: timer::config::Duty::Duty5Bit,
                     clock_source: timer::HSClockSource::APBClk,
                     frequency: Rate::from_khz(24),
                 })
                 .unwrap();
-
+                
+                #[cfg(any(feature = "esp", feature = "esp32"))]
                 let mut _kari_hstimer1 = _kari_ledc.timer::<HighSpeed>(timer::Number::Timer1);
+                #[cfg(any(feature = "esp", feature = "esp32"))]
                 _kari_hstimer1.configure(
                     timer::config::Config {
                         duty: timer::config::Duty::Duty12Bit,
@@ -63,6 +68,7 @@ pub fn init(_attr: TokenStream, item: TokenStream) -> TokenStream {
                         frequency: Rate::from_hz(50)
                     }
                 ).unwrap();
+
 
                 let mut _kari_lstimer0 = _kari_ledc.timer::<LowSpeed>(timer::Number::Timer0);
                 _kari_lstimer0
@@ -72,16 +78,27 @@ pub fn init(_attr: TokenStream, item: TokenStream) -> TokenStream {
                     frequency: Rate::from_khz(24),
                 })
                 .unwrap();
+
+                let mut _kari_lstimer1 = _kari_ledc.timer::<LowSpeed>(timer::Number::Timer1);
+                _kari_lstimer1
+                .configure(timer::config::Config {
+                    duty: timer::config::Duty::Duty12Bit,
+                    clock_source: timer::LSClockSource::APBClk,
+                    frequency: Rate::from_khz(50),
+                })
+                .unwrap();
                 
                 
                 let mut ls_timers: OnceCell<Vec<&str, 8>> = OnceCell::new();
                 let mut hs_timers: OnceCell<Vec<&str, 8>> = OnceCell::new();
 
                 let mut _adc1_config = AdcConfig::<ADC1>::new();
+                #[cfg(any(feature ="esp", feature = "esp32", feature = "esp32s3", feature = "esp32s2", feature = "esp32c3"))]
                 let mut _adc2_config = AdcConfig::<ADC2>::new();
                 let mut is_any_adc1_pin_init = false;
                 let mut is_any_adc2_pin_init = false;
                 let mut _adc1: Option<Adc<peripherals::ADC1, Blocking>> = None;
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s3", feature = "esp32s2", feature = "esp32c3"))]
                 let mut _adc2: Option<Adc<peripherals::ADC2, Blocking>> = None;
 
 
@@ -265,7 +282,7 @@ pub fn gen_pins(input: TokenStream) -> TokenStream {
             quote! {
                 #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
                 let #name = kariPins.#pin.into_pull_up_input();
-                #[cfg(feature = "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 let #name = _peripherals.#pin_ident;
             }
         }

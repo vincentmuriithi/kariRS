@@ -28,15 +28,27 @@ pub fn expand_serial(input: TokenStream) -> TokenStream {
        #[cfg(any(feature = "uno", feature = "mega", feature = "nano", feature = "leonardo"))]
         let mut kari_serial_listener = SerialListener::new(&mut _kari_rx);
 
-        #[cfg(feature = "esp")]
+        #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
         let config = UartConfig::default().with_baudrate(#pin_num);
-        #[cfg(feature = "esp")]
+        #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2"))]
         let mut _kari_serial = Uart::new(_peripherals.UART0, config).unwrap()
         .with_rx(_peripherals.GPIO3)
         .with_tx(_peripherals.GPIO1);
-        #[cfg(feature = "esp")]
+        #[cfg(feature = "esp32c3")]
+        let mut _kari_serial = Uart::new(_peripherals.UART0, config).unwrap()
+        .with_rx(_peripherals.GPIO21)
+        .with_tx(_peripherals.GPIO20);
+        #[cfg(feature = "esp32c6")]
+        let mut _kari_serial = Uart::new(_peripherals.UART0, config).unwrap()
+        .with_rx(_peripherals.GPIO17)
+        .with_tx(_peripherals.GPIO16);
+        #[cfg(feature = "esp32s3")]
+        let mut _kari_serial = Uart::new(_peripherals.UART0, config).unwrap()
+        .with_rx(_peripherals.GPIO44)
+        .with_tx(_peripherals.GPIO43);
+        #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
         let (mut _kari_rx, mut _kari_serial) = _kari_serial.split();
-        #[cfg(feature = "esp")]
+        #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
         let mut kari_serial_listener = SerialListener::new(_kari_rx);
     };
 

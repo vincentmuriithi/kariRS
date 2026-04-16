@@ -121,7 +121,7 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                     } 
                 }
 
-                #[cfg(feature= "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 unsafe {
                     if #pin_mode == kari_hal::gpio::OUTPUT{
                         #var_name = Some(Output::new(_peripherals.#esp_pin_ident, Level::Low, OutputConfig::default()));
@@ -138,7 +138,7 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                     } 
                 }
 
-                #[cfg(feature= "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 unsafe {
                     if #pin_mode == kari_hal::gpio::INPUT{
                         #input_name = Some(Input::new(_peripherals.#esp_pin_ident, InputConfig::default()));
@@ -156,7 +156,7 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                     } 
                 }
 
-                #[cfg(feature= "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 unsafe {
                     if #pin_mode == kari_hal::gpio::INPUT{
                         #input_name = Some(Input::new(_peripherals.#esp_pin_ident, InputConfig::default().with_pull(Pull::Up)));
@@ -170,7 +170,7 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                 #[cfg(any(feature= "uno", feature= "nano", feature= "mega", feature= "leonardo"))]
                 compile_error!("INPUT_PULLDOWN is not supported on AVR chips. Use an external resistor instead.");
 
-                #[cfg(feature= "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 unsafe {
                     if #pin_mode == kari_hal::gpio::INPUT{
                         #input_name = Some(Input::new(_peripherals.#esp_pin_ident, InputConfig::default().with_pull(Pull::Down)));
@@ -189,17 +189,53 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                     } 
                 }
 
-                #[cfg(feature= "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 unsafe {
                     if #pin_mode == kari_hal::gpio::_INPUT{
                         match #pin_num {
+                            #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s3", feature = "esp32s2"))]
                             32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 => {
                                 //#analog_pin = Some(kariAnyADC::ADC1(Adc::new(_peripherals.ADC1, adc_config)));
                                 is_any_adc1_pin_init = true;
                                 #analog_pin = Some(kariADCType::ADC1(_adc1_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)));
                             }
 
+                            #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s3", feature = "esp32s2"))]
                             0 | 2 | 4 | 12 | 13 | 14 | 15 | 25 | 26 | 27 => {
+                                //#analog_pin = Some(kariAnyADC::ADC2(Adc::new(_peripherals.ADC2, adc_config)));
+                                is_any_adc2_pin_init = true;
+                                #analog_pin = Some(kariADCType::ADC2(_adc2_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)));
+                            }
+
+                            #[cfg(feature = "esp32c6")]
+                            0 | 2 | 3 | 4 | 5 | 6 => {
+                                is_any_adc1_pin_init = true;
+                                #analog_pin = Some(kariADCType::ADC1(
+                                    _adc1_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)
+                                ));
+                            }
+
+                            #[cfg(feature = "esp32c3")]
+                            0 | 2 | 3 | 4 => {
+                                is_any_adc1_pin_init = true;
+                                #analog_pin = Some(kariADCType::ADC1(_adc1_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)));
+                            }
+
+                            #[cfg(feature = "esp32c3")]
+                            5 => {
+                                //#analog_pin = Some(kariAnyADC::ADC2(Adc::new(_peripherals.ADC2, adc_config)));
+                                is_any_adc2_pin_init = true;
+                                #analog_pin = Some(kariADCType::ADC2(_adc2_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)));
+                            }
+
+                            #[cfg(any(feature = "esp32s3", feature = "esp32s2"))]
+                            1..=10 => {
+                                is_any_adc1_pin_init = true;
+                                #analog_pin = Some(kariADCType::ADC1(_adc1_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)));
+                            }
+
+                            #[cfg(any(feature = "esp32s3", feature = "esp32s2"))]
+                            11..=20 => {
                                 //#analog_pin = Some(kariAnyADC::ADC2(Adc::new(_peripherals.ADC2, adc_config)));
                                 is_any_adc2_pin_init = true;
                                 #analog_pin = Some(kariADCType::ADC2(_adc2_config.enable_pin(_peripherals.#esp_pin_ident, Attenuation::_11dB)));
@@ -235,7 +271,7 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                     }
                 }
 
-                #[cfg(feature = "esp")]
+                #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
                 {
 
                     if #pin_mode == kari_hal::gpio::PWM {
@@ -247,7 +283,9 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                             let mut channel = configure_pwm(&mut _kari_ledc, channel_num, _peripherals.#esp_pin_ident, &_kari_lstimer0);
                             #pwm_pin = Some(kariChannel::LS(channel));
                             ls_timers.get_mut().unwrap().push(channel_str);
-                        } else {
+                        } 
+                        #[cfg(any(feature = "esp", feature = "esp32"))]
+                        else {
                             hs_timers.get_or_init(|| Vec::new());
                             let hs_timer_len = hs_timers.get().unwrap().len();
                             let (channel_num, channel_str) = map_channel(hs_timer_len as usize);

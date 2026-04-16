@@ -23,11 +23,12 @@ pub fn expand_analogRead(input: TokenStream) -> TokenStream {
     let expanded = quote! { 
         {
             let mut analog_value = 0;
-            #[cfg(feature = "esp")]
+            #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
             {
                let val =  if let Some(analog_pin) = #analog_pin_ident.as_mut() {
                     match analog_pin {
                         kariADCType::ADC1(pin) => {analog_value = nb::block!(_adc1.as_mut().unwrap().read_oneshot(pin)).unwrap();},
+                        #[cfg(any(feature = "esp", feature = "esp32", feature = "esp32s3", feature = "esp32s2", feature = "esp32c3"))]
                         kariADCType::ADC2(pin) => {analog_value = nb::block!(_adc2.as_mut().unwrap().read_oneshot(pin)).unwrap();},
                     }
                 } else {
