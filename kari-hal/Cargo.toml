@@ -5,6 +5,13 @@ edition = "2024"
 
 [features]
 esp = ["esp-hal", "embedded-hal-compat"]
+
+esp32   = ["esp-hal/esp32", "esp"]
+esp32s2 = ["esp-hal/esp32s2", "esp"]
+esp32s3 = ["esp-hal/esp32s3", "esp"]
+esp32c3 = ["esp-hal/esp32c3", "esp"]
+esp32c6 = ["esp-hal/esp32c6", "esp"]
+
 uno = ["arduino-hal/arduino-uno", "arduino-hal/critical-section-impl"]
 mega = ["arduino-hal/arduino-mega2560", "arduino-hal/critical-section-impl"]
 nano = ["arduino-hal/arduino-nano", "arduino-hal/critical-section-impl"]
@@ -21,7 +28,8 @@ leonardo  = ["arduino-hal/arduino-leonardo", "arduino-hal/critical-section-impl"
 [dependencies]
 kari-macros = {path = "../kari-macros"}
 arduino-hal = {path = "../deps/arduino-hal", optional = true}
-esp-hal = {path ="../esp_deps/esp-hal", features = ["esp32", "unstable"], optional = true}
+esp-hal = {path ="../esp_deps/esp-hal", features = ["unstable"], optional = true}
+# esp-hal = {path ="../esp_deps/esp-hal", features = ["esp32", "unstable"], optional = true}
 # embassy-embedded-hal = {path ="../esp_deps/embassy-embedded-hal", optional = true}
 # embassy-sync = {path ="../esp_deps/embassy-sync", optional = true}
 embedded-hal-compat = {path ="../deps/embedded-hal-compat", optional = true}

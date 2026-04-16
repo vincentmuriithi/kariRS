@@ -5,6 +5,7 @@
 
 #[cfg(feature = "esp")]
 pub use core::cell::OnceCell;
+pub use core::marker::PhantomData;
 use core::cell::UnsafeCell;
 pub use core::sync::atomic::{AtomicU8, Ordering};
 pub use core::cell::Cell;

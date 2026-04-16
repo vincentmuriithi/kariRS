@@ -1,30 +1,32 @@
 #[cfg(feature = "esp")]
 use esp_hal::gpio::OutputPin;
 #[cfg(feature = "esp")]
-use esp_hal::ledc::{Ledc, channel, HighSpeed,
+use esp_hal::ledc::{Ledc, channel,
 timer::{TimerSpeed, TimerIFace, Timer}
 };
 #[cfg(feature = "esp")]
 use embedded_hal_compat::eh1_0::pwm::SetDutyCycle;
 
+
 #[cfg(feature = "esp")]
-use crate::configure_pwm;
+use crate::{configure_pwm};
 
 
 #[cfg(feature = "esp")]
 #[allow(non_camel_case_types)]
-pub struct kariServo<'a>{
-        channel: channel::Channel<'a, HighSpeed>,
+pub struct kariServo<'a, S: TimerSpeed> {
+        channel: channel::Channel<'a, S>,
         min_duty: u32,
         duty_gap: u32,
 }
 
 #[cfg(feature = "esp")]
-impl<'a> kariServo<'a> {
+impl<'a, S: TimerSpeed> kariServo<'a, S> {
+
     pub fn new(ledc: &mut Ledc<'a>, 
     pin: impl Into<esp_hal::gpio::AnyPin<'a>> + OutputPin + 'a, 
-    timer: &'a impl TimerIFace<HighSpeed>,
-    channel_num: Option<channel::Number>) -> kariServo<'a> {
+    timer: &'a impl TimerIFace<S>,
+    channel_num: Option<channel::Number>) -> kariServo<'a, S> {
         let channel_num = channel_num.unwrap_or(channel::Number::Channel0);
         let channel = configure_pwm(ledc, channel_num, pin, timer);
         let max_duty_cycle = channel.max_duty_cycle() as u32;
@@ -35,6 +37,22 @@ impl<'a> kariServo<'a> {
         Self { channel, min_duty, duty_gap }
         
     }
+
+    // #[cfg(any(feature = "esp32s2", feature = "esp32s3", feature = "esp32c3", feature = "esp32c6"))]
+    // pub fn new(ledc: &mut Ledc<'a>, 
+    // pin: impl Into<esp_hal::gpio::AnyPin<'a>> + OutputPin + 'a, 
+    // timer: &'a impl TimerIFace<LowSpeed>,
+    // channel_num: Option<channel::Number>) -> kariServo<'a> {
+    //     let channel_num = channel_num.unwrap_or(channel::Number::Channel0);
+    //     let channel = configure_pwm(ledc, channel_num, pin, timer);
+    //     let max_duty_cycle = channel.max_duty_cycle() as u32;
+    //     let min_duty = (25 * max_duty_cycle) / 1000;
+    //     let max_duty = (125 * max_duty_cycle) / 1000;
+    //     let duty_gap = max_duty - min_duty;
+
+    //     Self { channel: kariChannel::LS(channel), min_duty, duty_gap }
+        
+    // }
 
     pub fn set_angle(&mut self, angle: u32) {
         let duty = self.duty_from_angle(angle, self.min_duty, self.duty_gap);
