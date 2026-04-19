@@ -91,7 +91,7 @@ impl<const N: usize> kariString<N> {
         if decimals > 0 {
             let _ = write!(self.string, ".");
             let scale = libm::powf(10.0, decimals as f32); //powf uses f32 pow uses f64
-            let frac_part = libm::roundf((value - abs) * scale) as u32;
+            let frac_part = libm::roundf((abs - int_part as f32) * scale) as u32;
             let _ = write!(self.string, "{:0width$}", frac_part, width = decimals as usize);
         }
 

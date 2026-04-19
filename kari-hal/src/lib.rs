@@ -208,7 +208,7 @@ use crate::START;
         i2c::I2c::new(twi, sda, scl, speed)
     }
 
-    #[cfg(feature = "uno")]
+    #[cfg(any(feature = "uno", feature = "nano"))]
     pub fn init_i2c(twi: arduino_hal::pac::TWI, sda:Pin<Input<PullUp>, PC4>, scl:Pin<Input<PullUp>, PC5> , speed: Option<u32>) -> i2c::I2c {
         let speed = speed.unwrap_or(100000);
         i2c::I2c::new(twi, sda, scl, speed)
