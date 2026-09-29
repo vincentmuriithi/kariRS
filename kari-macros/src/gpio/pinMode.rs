@@ -284,14 +284,17 @@ pub fn expand_pinMode(input: TokenStream) -> TokenStream{
                             #pwm_pin = Some(kariChannel::LS(channel));
                             ls_timers.get_mut().unwrap().push(channel_str);
                         } 
-                        #[cfg(any(feature = "esp", feature = "esp32"))]
+                        
                         else {
-                            hs_timers.get_or_init(|| Vec::new());
-                            let hs_timer_len = hs_timers.get().unwrap().len();
-                            let (channel_num, channel_str) = map_channel(hs_timer_len as usize);
-                            let mut channel = configure_pwm(&mut _kari_ledc, channel_num, _peripherals.#esp_pin_ident, &_kari_hstimer0);
-                            #pwm_pin = Some(kariChannel::HS(channel));
-                            hs_timers.get_mut().unwrap().push(channel_str);
+                            #[cfg(any(feature = "esp", feature = "esp32"))]
+                            {
+                                hs_timers.get_or_init(|| Vec::new());
+                                let hs_timer_len = hs_timers.get().unwrap().len();
+                                let (channel_num, channel_str) = map_channel(hs_timer_len as usize);
+                                let mut channel = configure_pwm(&mut _kari_ledc, channel_num, _peripherals.#esp_pin_ident, &_kari_hstimer0);
+                                #pwm_pin = Some(kariChannel::HS(channel));
+                                hs_timers.get_mut().unwrap().push(channel_str);
+                            }
                         }
                     } 
 
