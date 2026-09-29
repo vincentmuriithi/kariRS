@@ -42,7 +42,7 @@ embedded-hal = {path ="../deps/embedded-hal"}
 postcard = {path ="../deps/postcard"}
 serde = {path ="../deps/serde", default-features = false, features =["derive"]}
 libm = {path ="../deps/libm"}
-heapless = {path ="../deps/heapless"} # version 0.9 // avoid a versin below that as it lead to error
+heapless = {path ="../deps/heapless", features = ["serde"]} # version 0.9 // avoid a versin below that as it lead to error
 hd44780-driver = {path ="../deps/hd44780-driver"}
 avr-device-macros = {path = "../deps/avr-device-macros" }
 # avr-device = {path = "../deps/avr-device"}

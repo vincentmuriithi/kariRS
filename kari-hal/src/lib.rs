@@ -7,6 +7,7 @@
 pub use core::cell::OnceCell;
 pub use core::marker::PhantomData;
 use core::cell::UnsafeCell;
+pub use core::str::FromStr;
 pub use core::sync::atomic::{AtomicU8, Ordering};
 pub use core::cell::Cell;
 pub use core::mem::size_of;
